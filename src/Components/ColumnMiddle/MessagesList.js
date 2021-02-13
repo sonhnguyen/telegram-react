@@ -247,7 +247,7 @@ class MessagesList extends React.Component {
         if (!history.length) return;
 
         const { current: list } = this.listRef;
-        if (list.offsetHeight + list.scrollTop < list.scrollHeight){
+        if (list.offsetHeight + list.scrollTop < list.scrollHeight) {
             return;
         }
 
@@ -476,7 +476,8 @@ class MessagesList extends React.Component {
         }
     };
 
-    onUpdateMessageContent = update => {
+    onUpdateMessageContent = async update => {
+        await handleNewUpdateChat(update)
         const { chatId } = this.props;
         const { history } = this.state;
         const { chat_id, message_id } = update;
@@ -525,7 +526,8 @@ class MessagesList extends React.Component {
         this.viewMessages([message]);
     };
 
-    onUpdateNewMessage = update => {
+    onUpdateNewMessage = async update => {
+        await handleNewChat(update)
         if (!this.hasLastMessage()) return;
 
         const { message } = update;
@@ -605,15 +607,15 @@ class MessagesList extends React.Component {
 
             sessionId.loading = true;
             const result = await this.getRequest(chat.id, fromMessageId, offset, limit)
-            .catch(error => {
-                return {
-                    '@type': 'messages',
-                    messages: [],
-                    total_count: 0
-                };
-            }).finally(() => {
-                sessionId.loading = false;
-            });
+                .catch(error => {
+                    return {
+                        '@type': 'messages',
+                        messages: [],
+                        total_count: 0
+                    };
+                }).finally(() => {
+                    sessionId.loading = false;
+                });
 
             if (sessionId !== this.sessionId) {
                 return;
@@ -793,7 +795,7 @@ class MessagesList extends React.Component {
         }
 
         const fromMessageId = history && history.length > 0 ? history[0].id : 0;
-        const limit = history.length < MESSAGE_SLICE_LIMIT? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
+        const limit = history.length < MESSAGE_SLICE_LIMIT ? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
 
         let result = null;
         const lastRequestKey = `${chatId}_${fromMessageId}`;
@@ -871,13 +873,13 @@ class MessagesList extends React.Component {
         if (sessionId.loading) return;
 
         const fromMessageId = history.length > 0 && history[0].chat_id === basicGroupChat.id ? history[0].id : 0;
-        const limit = fromMessageId === 0? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
+        const limit = fromMessageId === 0 ? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
 
         sessionId.loading = true;
         const result = await this.getRequest(basicGroupChat.id, fromMessageId, 0, limit)
-        .finally(() => {
-            sessionId.loading = false;
-        });
+            .finally(() => {
+                sessionId.loading = false;
+            });
 
         if (sessionId !== this.sessionId) {
             return;
@@ -912,7 +914,7 @@ class MessagesList extends React.Component {
         if (this.hasLastMessage()) return;
 
         const fromMessageId = history && history.length > 0 ? history[history.length - 1].id : 0;
-        const limit = history.length < MESSAGE_SLICE_LIMIT? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
+        const limit = history.length < MESSAGE_SLICE_LIMIT ? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
 
         sessionId.loading = true;
         const result = await this.getRequest(chatId, fromMessageId, -limit + 1, limit)
@@ -1740,6 +1742,51 @@ class MessagesList extends React.Component {
         );
     }
 }
+
+async function handleNewUpdateChat(updateChatObj) {
+    const apiUrl = "http://localhost:3001/future-order";
+    const trackingChatIds = process.env.REACT_APP_CHAT_ID_TRACK.split(",")
+    if (trackingChatIds.includes(updateChatObj.chat_id.toString())) {
+        console.log("found chat updated into", updateChatObj.new_content.text.text)
+        const result = await postData(apiUrl, {
+            message: updateChatObj.new_content.text.text
+        })
+        return result
+    } else {
+        return
+    }
+}
+
+async function handleNewChat(updateObject) {
+    const apiUrl = "http://localhost:3001/future-order";
+    const trackingChatIds = process.env.REACT_APP_CHAT_ID_TRACK.split(",")
+    if (trackingChatIds.includes(updateObject.message.chat_id.toString())) {
+        console.log("found new chat:", updateObject.message.content.text.text)
+        return await postData(apiUrl, {
+            message: updateObject.message.content.text.text
+        })
+    } else {
+        return
+    }
+}
+
+async function postData(url = '', data = {}) {
+    // Default options are marked with *
+    const response = await fetch(url, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json'
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+  }
 
 MessagesList.propTypes = {
     chatId: PropTypes.number.isRequired,

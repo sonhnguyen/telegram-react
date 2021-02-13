@@ -24,7 +24,7 @@ Probably, you should use [nvm](https://github.com/nvm-sh/nvm).
 ```bash
 npm ci
 ```
-All TDLib files will be installed into node_modules/tdweb/dist/ folder. 
+All TDLib files will be installed into node_modules/tdweb/dist/ folder.
 
 5. **Manually copy TDLib files into the public folder.**
 
@@ -53,7 +53,7 @@ Manually copy Telegram api keys from previous step into REACT_TELEGRAM_API_ID an
 3. **Update *homepage* property at the app's `package.json` file.**
 
 Define its value to be the string `https://{username}.github.io/{repo-name}`, where `{username}` is your GitHub username, and `{repo-name}` is the name of the GitHub repository. Since my GitHub username is `evgeny-nadymov` and the name of my GitHub repository is `telegram-react`, I added the following property:
-    
+
 ```js
 //...
 "homepage": "https://evgeny-nadymov.github.io/telegram-react"

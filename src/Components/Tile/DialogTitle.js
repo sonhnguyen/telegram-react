@@ -58,7 +58,7 @@ class DialogTitle extends React.Component {
 
         return (
             <div className='dialog-title'>
-                <span className='dialog-title-span'>{title}</span>
+                <span className='dialog-title-span'>{chatId}</span>
                 {isVerified && <CheckDecagramIcon className='dialog-title-icon' />}
             </div>
         );

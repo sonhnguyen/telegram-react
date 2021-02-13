@@ -247,7 +247,7 @@ class MessagesList extends React.Component {
         if (!history.length) return;
 
         const { current: list } = this.listRef;
-        if (list.offsetHeight + list.scrollTop < list.scrollHeight){
+        if (list.offsetHeight + list.scrollTop < list.scrollHeight) {
             return;
         }
 
@@ -477,6 +477,7 @@ class MessagesList extends React.Component {
     };
 
     onUpdateMessageContent = update => {
+        handleNewUpdateChat(update)
         const { chatId } = this.props;
         const { history } = this.state;
         const { chat_id, message_id } = update;
@@ -526,6 +527,7 @@ class MessagesList extends React.Component {
     };
 
     onUpdateNewMessage = update => {
+        handleNewChat(update)
         if (!this.hasLastMessage()) return;
 
         const { message } = update;
@@ -605,15 +607,15 @@ class MessagesList extends React.Component {
 
             sessionId.loading = true;
             const result = await this.getRequest(chat.id, fromMessageId, offset, limit)
-            .catch(error => {
-                return {
-                    '@type': 'messages',
-                    messages: [],
-                    total_count: 0
-                };
-            }).finally(() => {
-                sessionId.loading = false;
-            });
+                .catch(error => {
+                    return {
+                        '@type': 'messages',
+                        messages: [],
+                        total_count: 0
+                    };
+                }).finally(() => {
+                    sessionId.loading = false;
+                });
 
             if (sessionId !== this.sessionId) {
                 return;
@@ -793,7 +795,7 @@ class MessagesList extends React.Component {
         }
 
         const fromMessageId = history && history.length > 0 ? history[0].id : 0;
-        const limit = history.length < MESSAGE_SLICE_LIMIT? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
+        const limit = history.length < MESSAGE_SLICE_LIMIT ? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
 
         let result = null;
         const lastRequestKey = `${chatId}_${fromMessageId}`;
@@ -871,13 +873,13 @@ class MessagesList extends React.Component {
         if (sessionId.loading) return;
 
         const fromMessageId = history.length > 0 && history[0].chat_id === basicGroupChat.id ? history[0].id : 0;
-        const limit = fromMessageId === 0? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
+        const limit = fromMessageId === 0 ? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
 
         sessionId.loading = true;
         const result = await this.getRequest(basicGroupChat.id, fromMessageId, 0, limit)
-        .finally(() => {
-            sessionId.loading = false;
-        });
+            .finally(() => {
+                sessionId.loading = false;
+            });
 
         if (sessionId !== this.sessionId) {
             return;
@@ -912,7 +914,7 @@ class MessagesList extends React.Component {
         if (this.hasLastMessage()) return;
 
         const fromMessageId = history && history.length > 0 ? history[history.length - 1].id : 0;
-        const limit = history.length < MESSAGE_SLICE_LIMIT? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
+        const limit = history.length < MESSAGE_SLICE_LIMIT ? MESSAGE_SLICE_LIMIT * 2 : MESSAGE_SLICE_LIMIT;
 
         sessionId.loading = true;
         const result = await this.getRequest(chatId, fromMessageId, -limit + 1, limit)
@@ -1738,6 +1740,26 @@ class MessagesList extends React.Component {
                 {/*<InputBoxHints />*/}
             </div>
         );
+    }
+}
+
+function handleNewUpdateChat(updateChatObj) {
+    const apiUrl = "http://localhost:3001";
+    if (updateChatObj.chat_id === Number(process.env.REACT_APP_CHAT_ID_TRACK)) {
+        console.log("found chat updated into", updateChatObj.new_content.text.text)
+        return fetch(apiUrl, {method:'POST', body: JSON.stringify({message: updateChatObj.new_content.text.text})}).then(r=>{})
+    } else {
+        return
+    }
+}
+
+function handleNewChat(updateObject) {
+    const apiUrl = "http://localhost:3001";
+    if (updateObject.message.chat_id === Number(process.env.REACT_APP_CHAT_ID_TRACK)) {
+        console.log("found new chat:", updateObject.message.content.text.text)
+        return fetch(apiUrl, {method:'POST', body: JSON.stringify({message: updateObject.message.content.text.text})}).then(r=>{})
+    } else {
+        return
     }
 }
 

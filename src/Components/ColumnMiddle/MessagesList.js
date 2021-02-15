@@ -1,12 +1,10 @@
-import dotenv from 'dotenv'
-dotenv.config()
 /*
- *  Copyright (c) 2018-present, Evgeny Nadymov
- *
- * This source code is licensed under the GPL v.3.0 license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
+*  Copyright (c) 2018-present, Evgeny Nadymov
+*
+* This source code is licensed under the GPL v.3.0 license found in the
+* LICENSE file in the root directory of this source tree.
+*/
+import dotenv from 'dotenv'
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as ReactDOM from 'react-dom';
@@ -38,6 +36,7 @@ import SupergroupStore from '../../Stores/SupergroupStore';
 import UserStore from '../../Stores/UserStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './MessagesList.css';
+dotenv.config()
 
 const ScrollBehaviorEnum = Object.freeze({
     SCROLL_TO_BOTTOM: 'SCROLL_TO_BOTTOM',

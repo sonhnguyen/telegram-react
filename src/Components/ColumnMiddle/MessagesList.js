@@ -1745,7 +1745,7 @@ class MessagesList extends React.Component {
 }
 
 async function handleNewUpdateChat(updateChatObj) {
-    const apiUrl = `${process.env.REACT_BOT_API_URL}/future-order`;
+    const apiUrl = `${process.env.REACT_APP_BOT_API_URL}/future-order`;
     console.log("apiUrl", apiUrl)
     const trackingChatIds = process.env.REACT_APP_CHAT_ID_TRACK.split(",")
     if (trackingChatIds.includes(updateChatObj.chat_id.toString())) {
@@ -1760,7 +1760,7 @@ async function handleNewUpdateChat(updateChatObj) {
 }
 
 async function handleNewChat(updateObject) {
-    const apiUrl = `${process.env.REACT_BOT_API_URL}/future-order`;
+    const apiUrl = `${process.env.REACT_APP_BOT_API_URL}/future-order`;
     console.log("apiUrl", apiUrl)
     const trackingChatIds = process.env.REACT_APP_CHAT_ID_TRACK.split(",")
     if (trackingChatIds.includes(updateObject.message.chat_id.toString())) {
